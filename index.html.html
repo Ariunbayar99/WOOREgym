@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOOREGYM-өөрийгөө бий болго</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --black: #0a0a0a;
+    --dark: #111111;
+    --card: #161616;
+    --gold: #c9a84c;
+    --gold2: #e8c96e;
+    --white: #f5f0e8;
+    --muted: #888;
+    --red: #e03c3c;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor { position: fixed; width: 12px; height: 12px; background: var(--gold); border-radius: 50%; pointer-events: none; z-index: 9999; transition: transform .15s, opacity .15s; transform: translate(-50%,-50%); }
+  .cursor-ring { position: fixed; width: 36px; height: 36px; border: 1px solid var(--gold); border-radius: 50%; pointer-events: none; z-index: 9998; transition: transform .3s ease, width .3s, height .3s; transform: translate(-50%,-50%); opacity: .5; }
+  body:hover .cursor { opacity: 1; }
+
+  /* Nav */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.5rem 4rem;
+    background: linear-gradient(to bottom, rgba(10,10,10,.95), transparent);
+    backdrop-filter: blur(0px);
+    transition: background .4s, backdrop-filter .4s;
+  }
+  nav.scrolled { background: rgba(10,10,10,.97); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(201,168,76,.15); }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 6px; color: var(--gold); }
+  .logo span { color: var(--white); }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: .85rem; letter-spacing: 2px; text-transform: uppercase; transition: color .2s; }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-cta { background: var(--gold); color: var(--black); padding: .6rem 1.8rem; font-family: 'Barlow', sans-serif; font-weight: 700; font-size: .8rem; letter-spacing: 2px; text-transform: uppercase; border: none; cursor: none; transition: background .2s, transform .2s; }
+  .nav-cta:hover { background: var(--gold2); transform: scale(1.03); }
+
+  /* Hero */
+  .hero {
+    min-height: 100vh; display: flex; align-items: center;
+    position: relative; overflow: hidden;
+    padding: 0 4rem;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(105deg, rgba(10,10,10,1) 40%, rgba(20,15,5,.7) 100%);
+    z-index: 1;
+  }
+  .hero-img {
+    position: absolute; inset: 0; z-index: 0;
+    background: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1400&q=80') center/cover no-repeat;
+  }
+  .hero-content { position: relative; z-index: 2; max-width: 700px; }
+  .hero-eyebrow { font-size: .75rem; letter-spacing: 5px; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+  .hero-eyebrow::before { content: ''; display: block; width: 40px; height: 1px; background: var(--gold); }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 12vw, 11rem);
+    line-height: .88;
+    letter-spacing: 2px;
+    margin-bottom: 1.5rem;
+  }
+  h1 em { color: var(--gold); font-style: normal; }
+  .hero-sub { font-size: 1.05rem; color: rgba(245,240,232,.6); max-width: 420px; line-height: 1.8; margin-bottom: 3rem; font-weight: 300; }
+  .hero-btns { display: flex; gap: 1rem; align-items: center; }
+  .btn-primary { background: var(--gold); color: var(--black); padding: 1rem 2.5rem; font-weight: 700; font-size: .85rem; letter-spacing: 2px; text-transform: uppercase; border: none; cursor: none; transition: all .2s; }
+  .btn-primary:hover { background: var(--gold2); transform: translateY(-2px); }
+  .btn-ghost { border: 1px solid rgba(201,168,76,.4); color: var(--gold); padding: 1rem 2.5rem; font-size: .85rem; letter-spacing: 2px; text-transform: uppercase; background: transparent; cursor: none; transition: all .2s; }
+  .btn-ghost:hover { border-color: var(--gold); background: rgba(201,168,76,.08); }
+  .hero-scroll { position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%); z-index: 2; display: flex; flex-direction: column; align-items: center; gap: .5rem; color: var(--muted); font-size: .7rem; letter-spacing: 3px; text-transform: uppercase; animation: scrollBounce 2s infinite; }
+  .hero-scroll::after { content: ''; display: block; width: 1px; height: 50px; background: linear-gradient(to bottom, var(--gold), transparent); margin-top: .5rem; }
+  @keyframes scrollBounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+
+  /* Stats */
+  .stats-bar {
+    background: var(--gold);
+    padding: 2rem 4rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background-color: var(--gold);
+  }
+  .stat-item {
+    background: var(--black);
+    padding: 2rem 2.5rem;
+    text-align: center;
+    display: flex; flex-direction: column; gap: .3rem;
+  }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem;
+    color: var(--gold);
+    line-height: 1;
+    letter-spacing: 2px;
+  }
+  .stat-num span { font-size: 2rem; }
+  .stat-label { font-size: .75rem; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+
+  /* Section common */
+  section { padding: 8rem 4rem; }
+  .section-label { font-size: .7rem; letter-spacing: 5px; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+  .section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(3rem, 6vw, 5.5rem); line-height: .9; margin-bottom: 1.5rem; letter-spacing: 1px; }
+  .section-sub { color: rgba(245,240,232,.5); max-width: 500px; line-height: 1.8; font-size: .95rem; }
+  .divider { width: 60px; height: 2px; background: var(--gold); margin: 2rem 0; }
+
+  /* Trainers */
+  .trainers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 4rem; background: var(--card); }
+  .trainer-card {
+    position: relative; overflow: hidden;
+    background: var(--dark);
+    aspect-ratio: 3/4;
+    cursor: none;
+  }
+  .trainer-img {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: grayscale(80%) contrast(1.1);
+    transition: filter .6s, transform .6s;
+  }
+  .trainer-card:hover .trainer-img { filter: grayscale(20%) contrast(1.05); transform: scale(1.05); }
+  .trainer-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(10,10,10,.95) 30%, transparent 65%);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 2rem;
+  }
+  .trainer-tag { font-size: .65rem; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: .5rem; }
+  .trainer-name { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 2px; margin-bottom: .3rem; }
+  .trainer-spec { font-size: .8rem; color: rgba(245,240,232,.5); letter-spacing: 1px; }
+  .trainer-hover {
+    position: absolute; inset: 0;
+    background: rgba(10,10,10,.88);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem;
+    opacity: 0; transition: opacity .4s;
+    padding: 2rem;
+  }
+  .trainer-card:hover .trainer-hover { opacity: 1; }
+  .trainer-stat { text-align: center; }
+  .trainer-stat strong { display: block; font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; color: var(--gold); letter-spacing: 2px; }
+  .trainer-stat span { font-size: .7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+
+  /* Pricing */
+  .pricing-section { background: var(--dark); }
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 4rem; background: rgba(201,168,76,.1); }
+  .pricing-card {
+    background: var(--card);
+    padding: 3rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform .3s;
+    cursor: none;
+  }
+  .pricing-card.featured {
+    background: var(--black);
+    border: 1px solid var(--gold);
+  }
+  .pricing-card:hover { transform: translateY(-4px); }
+  .pricing-badge { position: absolute; top: 1.5rem; right: 1.5rem; background: var(--gold); color: var(--black); font-size: .65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: .3rem .8rem; }
+  .pricing-tier { font-size: .7rem; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
+  .pricing-price { display: flex; align-items: baseline; gap: .3rem; margin-bottom: .5rem; }
+  .pricing-currency { font-size: 1.2rem; color: var(--gold); font-weight: 600; }
+  .pricing-amount { font-family: 'Bebas Neue', sans-serif; font-size: 5rem; color: var(--white); letter-spacing: -2px; line-height: 1; }
+  .pricing-period { font-size: .8rem; color: var(--muted); }
+  .pricing-desc { font-size: .85rem; color: rgba(245,240,232,.4); margin-bottom: 2rem; line-height: 1.7; }
+  .pricing-features { list-style: none; margin-bottom: 2.5rem; display: flex; flex-direction: column; gap: .8rem; }
+  .pricing-features li { font-size: .85rem; color: rgba(245,240,232,.7); display: flex; gap: .7rem; align-items: flex-start; }
+  .pricing-features li::before { content: '—'; color: var(--gold); flex-shrink: 0; }
+  .pricing-features li.muted { color: rgba(245,240,232,.25); }
+  .pricing-features li.muted::before { color: rgba(201,168,76,.2); }
+  .btn-plan { width: 100%; padding: .9rem; font-weight: 700; font-size: .8rem; letter-spacing: 2px; text-transform: uppercase; border: 1px solid rgba(201,168,76,.3); background: transparent; color: var(--gold); cursor: none; transition: all .2s; }
+  .btn-plan:hover { background: var(--gold); color: var(--black); border-color: var(--gold); }
+  .pricing-card.featured .btn-plan { background: var(--gold); color: var(--black); border-color: var(--gold); }
+  .pricing-card.featured .btn-plan:hover { background: var(--gold2); }
+
+  /* BMI Calculator */
+  .bmi-section { background: var(--black); }
+  .bmi-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; margin-top: 4rem; }
+  .bmi-calculator {
+    background: var(--card);
+    padding: 3rem;
+    border: 1px solid rgba(201,168,76,.12);
+  }
+  .bmi-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+  .bmi-field label { display: block; font-size: .7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: .5rem; }
+  .bmi-field input {
+    width: 100%; background: var(--black); border: 1px solid rgba(201,168,76,.15);
+    color: var(--white); padding: .9rem 1rem; font-family: 'Barlow', sans-serif;
+    font-size: 1.1rem; font-weight: 300; outline: none; transition: border-color .2s;
+  }
+  .bmi-field input:focus { border-color: var(--gold); }
+  .bmi-field input::placeholder { color: rgba(255,255,255,.15); }
+  .bmi-toggle { display: flex; gap: 0; margin-bottom: 2rem; }
+  .bmi-toggle-btn {
+    flex: 1; padding: .6rem; font-size: .75rem; letter-spacing: 2px; text-transform: uppercase;
+    border: 1px solid rgba(201,168,76,.2); background: transparent; color: var(--muted); cursor: none; transition: all .2s;
+  }
+  .bmi-toggle-btn.active { background: var(--gold); color: var(--black); border-color: var(--gold); font-weight: 700; }
+  .btn-calc { width: 100%; padding: 1rem; background: var(--gold); color: var(--black); font-weight: 700; font-size: .85rem; letter-spacing: 2px; text-transform: uppercase; border: none; cursor: none; transition: all .2s; }
+  .btn-calc:hover { background: var(--gold2); }
+  .bmi-result { display: none; margin-top: 2rem; padding: 1.5rem; border: 1px solid rgba(201,168,76,.2); }
+  .bmi-result.show { display: block; }
+  .bmi-result-label { font-size: .65rem; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: .3rem; }
+  .bmi-result-value { font-family: 'Bebas Neue', sans-serif; font-size: 4rem; color: var(--gold); letter-spacing: 2px; }
+  .bmi-result-category { font-size: .85rem; margin-top: .3rem; }
+  .bmi-scale { margin-top: 1.5rem; }
+  .bmi-scale-bar { height: 6px; background: linear-gradient(to right, #3b82f6, #22c55e, #f59e0b, #ef4444); border-radius: 3px; position: relative; margin-bottom: .8rem; }
+  .bmi-scale-marker { position: absolute; top: -4px; width: 14px; height: 14px; background: var(--white); border: 2px solid var(--gold); border-radius: 50%; transform: translateX(-50%); transition: left .6s cubic-bezier(.34,1.56,.64,1); }
+  .bmi-scale-labels { display: flex; justify-content: space-between; font-size: .65rem; color: var(--muted); letter-spacing: 1px; }
+  
+  .bmi-info-title { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; line-height: 1; margin-bottom: 1.5rem; letter-spacing: 1px; }
+  .bmi-info-title em { color: var(--gold); font-style: normal; }
+  .bmi-ranges { display: flex; flex-direction: column; gap: .5rem; margin-top: 2rem; }
+  .bmi-range-item { display: flex; align-items: center; gap: 1rem; font-size: .82rem; color: rgba(245,240,232,.6); }
+  .bmi-range-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Before/After Slider */
+  .transform-section { background: var(--dark); }
+  .slider-container { position: relative; max-width: 800px; margin: 4rem auto 0; overflow: hidden; user-select: none; cursor: none; aspect-ratio: 16/9; }
+  .slider-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .slider-img.after { clip-path: inset(0 50% 0 0); transition: clip-path 0s; }
+  .slider-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: var(--gold); z-index: 3; pointer-events: none; }
+  .slider-handle {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 48px; height: 48px;
+    background: var(--gold);
+    border-radius: 50%;
+    z-index: 4;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; color: var(--black); font-weight: 900;
+    box-shadow: 0 0 0 4px rgba(201,168,76,.3);
+  }
+  .slider-label {
+    position: absolute; top: 1.5rem; z-index: 3;
+    font-size: .65rem; letter-spacing: 3px; text-transform: uppercase;
+    background: rgba(10,10,10,.8); padding: .4rem 1rem; color: var(--white);
+  }
+  .slider-label.before { left: 1.5rem; }
+  .slider-label.after-lbl { right: 1.5rem; color: var(--gold); }
+  .transform-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; max-width: 800px; margin: 2rem auto 0; }
+  .transform-card { background: var(--card); padding: 1.5rem; text-align: center; }
+  .transform-card strong { display: block; font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: var(--gold); letter-spacing: 2px; }
+  .transform-card span { font-size: .7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+
+  /* Footer */
+  footer {
+    background: var(--dark);
+    border-top: 1px solid rgba(201,168,76,.1);
+    padding: 4rem;
+  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+  .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; letter-spacing: 6px; color: var(--gold); margin-bottom: 1rem; }
+  .footer-desc { font-size: .85rem; color: var(--muted); line-height: 1.8; max-width: 240px; }
+  .footer-heading { font-size: .7rem; letter-spacing: 4px; text-transform: uppercase; color: var(--white); margin-bottom: 1.5rem; }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: .7rem; }
+  .footer-links a { color: var(--muted); text-decoration: none; font-size: .85rem; transition: color .2s; }
+  .footer-links a:hover { color: var(--gold); }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,.06); padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; }
+  .footer-copy { font-size: .75rem; color: rgba(255,255,255,.2); letter-spacing: 1px; }
+
+  /* Animations */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity .8s ease, transform .8s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  .reveal-delay-1 { transition-delay: .1s; }
+  .reveal-delay-2 { transition-delay: .2s; }
+  .reveal-delay-3 { transition-delay: .3s; }
+
+  /* Counter animation */
+  @keyframes countUp { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--gold); }
+
+  /* Modal - Анх харагдахгүй байх */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(8px);
+  display: none; /* Нуух */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.modal.active {
+  display: flex; /* Идэвхтэй үед харуулна */
+}
+
+.modal-content {
+  background: var(--card);
+  border: 1px solid var(--gold);
+  padding: 3.5rem;
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  animation: modalFadeIn 0.4s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.close-modal {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  font-size: 2.5rem;
+  color: var(--gold);
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Modal - Анх харагдахгүй байх */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(8px);
+  display: none; /* Нуух */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.modal.active {
+  display: flex; /* Идэвхтэй үед харуулна */
+}
+
+.modal-content {
+  background: var(--card);
+  border: 1px solid var(--gold);
+  padding: 3.5rem;
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  animation: modalFadeIn 0.4s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.close-modal {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  font-size: 2.5rem;
+  color: var(--gold);
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Schedule - Дасгалын төлөвлөгөөний загвар */
+.schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+.schedule-card {
+  background: var(--dark);
+  padding: 2rem;
+  border-left: 3px solid var(--gold);
+  transition: transform .3s;
+}
+.schedule-card:hover { transform: scale(1.02); background: var(--card); }
+.schedule-card.highlighted { background: rgba(201,168,76,0.1); border-left-width: 5px; }
+.day { font-size: .7rem; letter-spacing: 3px; color: var(--gold); margin-bottom: .5rem; }
+.target { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; margin-bottom: 1.5rem; }
+.exercises { list-style: none; display: flex; flex-direction: column; gap: .8rem; }
+.exercises li { font-size: .85rem; color: var(--muted); display: flex; align-items: center; gap: .5rem; }
+.exercises li::before { content: '▹'; color: var(--gold); }
+/* Гар утсанд зориулсан тохиргоо */
+@media (max-width: 768px) {
+  /* 1. Padding-г багасгах (Зай талбай хэмнэх) */
+  section {
+    padding: 4rem 1.5rem;
+  }
+
+  nav {
+    padding: 1rem 1.5rem;
+  }
+
+  /* 2. Hero хэсгийн текстийг жижигсгэх */
+  h1 {
+    font-size: 4rem; /* Хэт том байвал дэлгэцнээс гарчихдаг */
+  }
+
+  /* 3. Grid-үүдийг 1 баганатай болгох */
+  .stats-bar, 
+  .trainers-grid, 
+  .pricing-grid, 
+  .bmi-wrapper,
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem;
+  }
+
+  /* 4. BMI болон Калори хэсэг */
+  .bmi-inputs {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 5. Хүснэгтийг гүйлгэдэг болгох (Nutrition table) */
+  .nutrition-container {
+    grid-template-columns: 1fr;
+    overflow-x: auto;
+  }
+  
+  .nutrition-table {
+    min-width: 500px; /* Хүснэгт хэт жижигрэхээс сэргийлнэ */
+  }
+
+  /* 6. Trainer-ийн картыг утсан дээр арай намхан болгох */
+  .trainer-card {
+    aspect-ratio: 1/1.2;
+  }
+}
+.quotes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 4rem;
+}
+
+.quote-card {
+  position: relative;
+  background: var(--card);
+  overflow: hidden;
+  border-bottom: 3px solid var(--gold);
+}
+
+.quote-img-wrapper {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
+}
+
+.quote-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%) brightness(0.7);
+  transition: 0.5s ease;
+}
+
+.quote-card:hover .quote-img-wrapper img {
+  filter: grayscale(0%) brightness(0.9);
+  transform: scale(1.05);
+}
+
+.quote-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent, var(--card));
+}
+
+.quote-text {
+  padding: 2rem;
+  position: relative;
+}
+
+.quote-icon {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 4rem;
+  color: var(--gold);
+  position: absolute;
+  top: -20px;
+  left: 20px;
+  opacity: 0.3;
+}
+
+.quote-text p {
+  font-style: italic;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  color: var(--white);
+}
+
+.quote-author {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+  .quotes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+#david-laid {
+  padding: 0; /* Дэлгэц дүүрэн харагдахын тулд */
+  position: relative;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  margin-top: 4rem;
+}
+
+.david-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  align-items: center;
+}
+
+.david-img-box {
+  position: relative;
+  height: 80vh;
+}
+
+.david-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: contrast(1.2) brightness(0.8);
+}
+
+.david-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, transparent 50%, var(--black) 100%);
+}
+
+.david-content {
+  padding: 4rem;
+  background: var(--black);
+  z-index: 2;
+}
+
+.david-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(4rem, 8vw, 7rem);
+  line-height: 0.9;
+  letter-spacing: 4px;
+}
+
+.david-title em {
+  color: var(--gold);
+  font-style: normal;
+}
+
+.david-quote {
+  position: relative;
+  margin: 2rem 0;
+}
+
+.david-quote p {
+  font-family: 'Barlow', sans-serif;
+  font-style: italic;
+  font-size: 1.5rem;
+  color: var(--white);
+  line-height: 1.4;
+  padding-left: 1.5rem;
+  border-left: 2px solid var(--gold);
+}
+
+.david-sub {
+  color: var(--muted);
+  max-width: 500px;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .david-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .david-img-box {
+    height: 50vh;
+  }
+  
+  .david-overlay {
+    background: linear-gradient(to bottom, transparent, var(--black));
+  }
+  
+  .david-content {
+    padding: 3rem 1.5rem;
+    margin-top: -100px; /* Зургийн дээгүүр бага зэрэг орж харагдана */
+  }
+}
+img {
+  width: 100%;
+  height: 100%;
+  /* Энэ код зургийг харьцаа алдагдуулахгүй, чанартай харагдуулна */
+  object-fit: cover; 
+  /* Зургийн төв хэсгийг харуулна */
+  object-position: center; 
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+
+
+<!-- REGISTRATION MODAL -->
+<div id="regModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <h2 class="section-title" style="font-size: 2.5rem; margin-bottom: 0.5rem;">БҮРТГҮҮЛЭХ</h2>
+    <div class="divider" style="margin: 1rem 0 2rem 0;"></div>
+    <form id="regForm">
+      <div class="bmi-field" style="margin-bottom: 1.5rem;">
+        <label>Таны нэр</label>
+        <input type="text" placeholder="Нэрээ оруулна уу" required>
+      </div>
+      <div class="bmi-field" style="margin-bottom: 1.5rem;">
+        <label>Утасны дугаар</label>
+        <input type="tel" placeholder="9911XXXX" required>
+      </div>
+      <button type="submit" class="btn-primary" style="width: 100%;">ИЛГЭЭХ</button>
+    </form>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="logo">WOORE<span>GYM</span></div>
+  <ul class="nav-links">
+    <li><a href="#trainers">Дасгалжуулагч</a></li>
+    <li><a href="#pricing">Тариф</a></li>
+    <li><a href="#bmi">BMI</a></li>
+    <li><a href="#transform">Өөрчлөлт</a></li>
+  </ul>
+  <button class="nav-cta">Элсэх</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-img"></div>
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Улаанбаатар · Монгол</p>
+    <h1>ХЯЗГА<em>РАА</em><br>ДАВ</h1>
+    <p class="hero-sub">WOOREGYM зөвхөн биеийн тамир биш — энэ бол таны хязгааргүй хүчийг олж нээх газар.</p>
+    <div class="hero-btns">
+      <button class="btn-primary">Одоо эхэл</button>
+      <button class="btn-ghost">Дэлгэрэнгүй</button>
+    </div>
+  </div>
+  <div class="hero-scroll">Доош гүйлгэ</div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num" data-target="2400"><span>0</span>+</div>
+    <div class="stat-label">Гишүүн</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-target="18"><span>0</span></div>
+    <div class="stat-label">Дасгалжуулагч</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-target="95"><span>0</span>%</div>
+    <div class="stat-label">Амжилт</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-target="7"><span>0</span> жил</div>
+    <div class="stat-label">Туршлага</div>
+  </div>
+</div>
+
+<!-- TRAINERS -->
+<section id="trainers">
+  <div class="reveal">
+    <p class="section-label">Манай баг</p>
+    <h2 class="section-title">ШИЛДЭГ<br>ДАСГАЛЖУУЛАГЧ</h2>
+    <div class="divider"></div>
+    <p class="section-sub">Мэргэжлийн дасгалжуулагчид таны хамт зорилгодоо хүрнэ.</p>
+  </div>
+  <div class="trainers-grid">
+    <div class="trainer-card reveal reveal-delay-1">
+      <img class="trainer-img" src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80" alt="Trainer">
+      <div class="trainer-overlay">
+        <div class="trainer-tag"> Дасгалжуулагч</div>
+        <div class="trainer-name">Анар</div>
+        <div class="trainer-spec">Хүч · Паурлифтинг</div>
+      </div>
+      <div class="trainer-hover">
+        <div class="trainer-stat"><strong>2</strong><span>Жилийн туршлага</span></div>
+        <div class="trainer-stat"><strong>4+</strong><span>Дасгалтан</span></div>
+        
+      </div>
+    </div>
+    <div class="trainer-card reveal reveal-delay-2">
+      <img class="trainer-img" src="https://images.unsplash.com/photo-1594381898411-846e7d193883?w=600&q=80" alt="Trainer">
+      <div class="trainer-overlay">
+        <div class="trainer-tag">Хоол тэжээлийн зөвлөх</div>
+        <div class="trainer-name">Цэнгэл</div>
+        <div class="trainer-spec">techinque coach</div>
+      </div>
+      <div class="trainer-hover">
+        <div class="trainer-stat"><strong>6</strong><span>Жилийн туршлага</span></div>
+        <div class="trainer-stat"><strong>50+</strong><span>Дасгалтан</span></div>
+        <div class="trainer-stat"><strong>5x</strong><span>Чемпион</span></div>
+      </div>
+    </div>
+    <div class="trainer-card reveal reveal-delay-3">
+      <img class="trainer-img" src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&q=80" alt="Trainer">
+      <div class="trainer-overlay">
+        <div class="trainer-tag">Mens physique</div>
+        <div class="trainer-name">Ариунбаяр</div>
+        <div class="trainer-spec">Workout</div>
+      </div>
+      <div class="trainer-hover">
+        <div class="trainer-stat"><strong>1</strong><span>Жилийн туршлага</span></div>
+        
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- WORKOUT SCHEDULE -->
+<section id="schedule" class="reveal">
+  <p class="section-label">Хөтөлбөр</p>
+  <h2 class="section-title">7 ХОНОГИЙН<br>ТӨЛӨВЛӨГӨӨ</h2>
+  <div class="divider"></div>
+  
+  <div class="schedule-grid">
+    <div class="schedule-card">
+      <div class="day">ДАВАА</div>
+      <div class="target">ЦЭЭЖ</div>
+      <ul class="exercises">
+        <li>Хэвтээ шахалт (Bench Press)</li>
+        <li>Налуу шахалт (Incline Press)</li>
+        <li>Гантэл дэлгэлт (Flyes)</li>
+      </ul>
+    </div>
+    <div class="schedule-card">
+      <div class="day">ЛХАГВА</div>
+      <div class="target">НУРУУ</div>
+      <ul class="exercises">
+        <li>Түрүү суниалт (Pull-ups)</li>
+        <li>Тонгойж татах (Bent Over Row)</li>
+        <li>Deadlift (Үндсэн таталт)</li>
+      </ul>
+    </div>
+    <div class="schedule-card">
+      <div class="day">БААСАН</div>
+      <div class="target">ХӨЛ</div>
+      <ul class="exercises">
+        <li>Суулт (Squats)</li>
+        <li>Хөл жийлт (Leg Press)</li>
+        <li>Өгзөгний таталт (Lunge)</li>
+      </ul>
+    </div>
+    <div class="schedule-card highlighted">
+      <div class="day">БЯМБА</div>
+      <div class="target">ГАР & МӨР</div>
+      <ul class="exercises">
+        <li>Мөрний шахалт (Military Press)</li>
+        <li>Бицепс нугалалт (Bicep Curls)</li>
+        <li>Трицепс сунгалт (Dips)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- BMI -->
+<section id="bmi" class="bmi-section">
+  <div class="bmi-wrapper">
+    <div class="reveal">
+      <p class="section-label">Биеийн шинжилгээ</p>
+      <div class="bmi-info-title">ТАНЫ <em>BMI</em><br>ХЭДЭН ВЭ?</div>
+      <div class="divider"></div>
+      <p class="section-sub" style="font-size:.85rem;">Биеийн жингийн индекс (BMI) нь таны эрүүл мэндийн байдлыг тодорхойлдог чухал үзүүлэлт.</p>
+      <div class="bmi-ranges">
+        <div class="bmi-range-item"><div class="bmi-range-dot" style="background:#3b82f6"></div> 18.5-аас бага — Турал</div>
+        <div class="bmi-range-item"><div class="bmi-range-dot" style="background:#22c55e"></div> 18.5–24.9 — Хэвийн жин</div>
+        <div class="bmi-range-item"><div class="bmi-range-dot" style="background:#f59e0b"></div> 25–29.9 — Илүүдэл жин</div>
+        <div class="bmi-range-item"><div class="bmi-range-dot" style="background:#ef4444"></div> 30+ — Таргалалт</div>
+      </div>
+    </div>
+    <div class="bmi-calculator reveal reveal-delay-2">
+      <div class="bmi-toggle">
+        <button class="bmi-toggle-btn active" onclick="setUnit('metric', this)">Метрик (кг/см)</button>
+        <button class="bmi-toggle-btn" onclick="setUnit('imperial', this)">Хүнд (фунт/инч)</button>
+      </div>
+      <div class="bmi-inputs">
+        <div class="bmi-field">
+          <label id="weight-label">Жин (кг)</label>
+          <input type="number" id="weight" placeholder="75">
+        </div>
+        <div class="bmi-field">
+          <label id="height-label">Өндөр (см)</label>
+          <input type="number" id="height" placeholder="175">
+        </div>
+      </div>
+      <button class="btn-calc" onclick="calcBMI()">BMI тооцоолох</button>
+      <div class="bmi-result" id="bmiResult">
+        <div class="bmi-result-label">Таны BMI</div>
+        <div class="bmi-result-value" id="bmiValue">—</div>
+        <div class="bmi-result-category" id="bmiCategory"></div>
+        <div class="bmi-scale">
+          <div class="bmi-scale-bar">
+            <div class="bmi-scale-marker" id="bmiMarker" style="left:40%"></div>
+          </div>
+          <div class="bmi-scale-labels">
+            <span>Тural</span><span>Хэвийн</span><span>Илүүдэл</span><span>Таргалалт</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- CALORIE CALCULATOR -->
+<section id="calorie" class="bmi-section" style="border-top: 1px solid rgba(201,168,76,0.1); padding-top: 5rem;">
+  <div class="bmi-wrapper">
+    <div class="calorie-info reveal">
+      <p class="section-label">Илчлэг тооцоолох</p>
+      <div class="bmi-info-title">ӨДӨРТ АВАХ <em>ИЛЧЛЭГ</em></div>
+      <div class="divider"></div>
+      <p class="section-sub">Таны суурь бодисын солилцоо (BMR) болон өдрийн идэвх хөдөлгөөнд тулгуурлан тооцоолно.</p>
+      
+      <div class="bmi-ranges" style="margin-top: 2rem;">
+        <div class="bmi-range-item"><strong>BMR:</strong> Таны бие юу ч хийхгүй байхад зарцуулах эрчим хүч.</div>
+        <div class="bmi-range-item"><strong>Maintenance:</strong> Одоо байгаа жингээ барих илчлэг.</div>
+      </div>
+    </div>
+
+    <div class="bmi-calculator reveal reveal-delay-2">
+      <div class="bmi-inputs" style="grid-template-columns: 1fr 1fr 1fr;">
+        <div class="bmi-field">
+          <label>Хүйс</label>
+          <select id="gender" style="width:100%; background:var(--black); border:1px solid rgba(201,168,76,.15); color:var(--white); padding:.9rem;">
+            <option value="male">Эрэгтэй</option>
+            <option value="female">Эмэгтэй</option>
+          </select>
+        </div>
+        <div class="bmi-field">
+          <label>Нас</label>
+          <input type="number" id="age" placeholder="25">
+        </div>
+        <div class="bmi-field">
+          <label>Жин (кг)</label>
+          <input type="number" id="cal-weight" placeholder="70">
+        </div>
+      </div>
+      
+      <div class="bmi-field" style="margin-bottom: 1.5rem;">
+        <label>Өндөр (см)</label>
+        <input type="number" id="cal-height" placeholder="175">
+      </div>
+
+      <div class="bmi-field" style="margin-bottom: 2rem;">
+        <label>Идэвх хөдөлгөөн</label>
+        <select id="activity" style="width:100%; background:var(--black); border:1px solid rgba(201,168,76,.15); color:var(--white); padding:.9rem;">
+          <option value="1.2">Хөдөлгөөн бага (Суугаа ажил)</option>
+          <option value="1.375">Хөнгөн (Долоо хоногт 1-3 дасгал)</option>
+          <option value="1.55">Дундаж (Долоо хоногт 3-5 дасгал)</option>
+          <option value="1.725">Идэвхтэй (Долоо хоногт 6-7 дасгал)</option>
+          <option value="1.9">Маш идэвхтэй (Өдөр бүр хүнд дасгал)</option>
+        </select>
+      </div>
+
+      <button class="btn-calc" onclick="calcCalories()">ИЛЧЛЭГ ТООЦООЛОХ</button>
+
+      <div class="bmi-result" id="calResult">
+        <div class="bmi-result-label">Жин барих илчлэг:</div>
+        <div class="bmi-result-value" id="calValue" style="font-size: 3rem;">—</div>
+        <p id="goalInfo" style="font-size: 0.8rem; color: var(--muted); margin-top: 10px;"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NUTRITION SECTION -->
+<section id="nutrition" class="reveal" style="background: var(--black); padding: 8rem 4rem;">
+  <p class="section-label">Хооллолт</p>
+  <h2 class="section-title">ХҮНСНИЙ<br>ШИМ ТЭЖЭЭЛ</h2>
+  <div class="divider"></div>
+  <p class="section-sub" style="margin-bottom: 3rem;">100г бүтээгдэхүүн тутам дахь дундаж үзүүлэлт:</p>
+
+  <style>
+    .nutrition-container { display: grid; grid-template-columns: 2fr 1fr; gap: 3rem; margin-top: 2rem; }
+    .nutrition-table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid rgba(201,168,76,0.1); }
+    .nutrition-table th, .nutrition-table td { padding: 1.2rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+    .nutrition-table th { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: var(--gold); background: rgba(201,168,76,0.05); letter-spacing: 1px; }
+    .gold-text { color: var(--gold); font-weight: 600; }
+    .nutrition-tips { display: flex; flex-direction: column; gap: 1.5rem; }
+    .tip-card { background: var(--dark); padding: 1.5rem; border-right: 2px solid var(--gold); }
+    .tip-card strong { display: block; font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; color: var(--gold); margin-bottom: 0.5rem; }
+    @media (max-width: 992px) { .nutrition-container { grid-template-columns: 1fr; } }
+  </style>
+
+  <div class="nutrition-container">
+    <table class="nutrition-table">
+      <thead>
+        <tr>
+          <th>БҮТЭЭГДЭХҮҮН (100г)</th>
+          <th>УУРАГ (г)</th>
+          <th>НҮҮРС УС (г)</th>
+          <th>ТОС (г)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>🥩 Үхрийн мах</td><td class="gold-text">26г</td><td>0г</td><td>15г</td></tr>
+        <tr><td>🍗 Тахианы цээж</td><td class="gold-text">31г</td><td>0г</td><td>3.6г</td></tr>
+        <tr><td>🥚 Өндөг (1ш)</td><td class="gold-text">6.3г</td><td>0.6г</td><td>5г</td></tr>
+        <tr><td>🥣 Овьёос</td><td>13г</td><td class="gold-text">66г</td><td>7г</td></tr>
+        <tr><td>🍚 Цагаан будаа</td><td>2.7г</td><td class="gold-text">28г</td><td>0.3г</td></tr>
+        <tr><td>🍠 Амтат төмс</td><td>2г</td><td class="gold-text">20г</td><td>0.1г</td></tr>
+        <tr><td>🥛 Сүү (1 аяга)</td><td>8г</td><td>12г</td><td>8г</td></tr>
+        <tr><td>🥜 Самар</td><td>15г</td><td>14г</td><td class="gold-text">65г</td></tr>
+      </tbody>
+    </table>
+    
+    <div class="nutrition-tips">
+      <div class="tip-card">
+        <strong>БОЛОВСРУУЛАЛТ</strong>
+        <p style="font-size: 0.8rem; color: var(--muted);">Хүнсээ чанах эсвэл жигнэж хэрэглэх нь шим тэжээлээ алдахгүй байхад тусална.</p>
+      </div>
+      <div class="tip-card">
+        <strong>УУРГИЙН ХЭРЭГЛЭЭ</strong>
+        <p style="font-size: 0.8rem; color: var(--muted);">Булчин нэмэх зорилготой бол өөрийн жингээ 1.6-2-оор үржүүлсэнтэй тэнцэх грамм уураг аваарай.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MOTIVATION QUOTES -->
+<section id="quotes" class="reveal" style="background: var(--black); padding: 8rem 4rem;">
+  <p class="section-label">Урам зориг</p>
+  <h2 class="section-title">АЛДАРТНУУДЫН<br>ИШЛЭЛ</h2>
+  <div class="divider"></div>
+
+  <div class="quotes-grid">
+    <!-- Arnold Schwarzenegger -->
+    <div class="quote-card">
+      <div class="quote-img-wrapper">
+        <img src= "arnold.jpg" alt="Arnold">
+        <div class="quote-overlay"></div>
+      </div>
+      <div class="quote-text">
+        <span class="quote-icon">"</span>
+        <p>Хүч чадал ялалтаас ирдэггүй. Таны тэмцэл хүч чадлыг бий болгодог.</p>
+        <div class="quote-author">- Арнольд Шварценеггер</div>
+      </div>
+    </div>
+
+    <!-- Ronnie Coleman -->
+    <div class="quote-card">
+      <div class="quote-img-wrapper">
+        <img src="ronnie.jpg" alt="Ronnie">
+        <div class="quote-overlay"></div>
+      </div>
+      <div class="quote-text">
+        <span class="quote-icon">"</span>
+        <p>Хүн бүр бодибилдингчин болохыг хүсдэг ч, хүнд жинг өргөхийг хэн ч хүсдэггүй.</p>
+        <div class="quote-author">- Ронни Коулмэн</div>
+      </div>
+    </div>
+
+    <!-- Jay Cutler -->
+    <div class="quote-card">
+      <div class="quote-img-wrapper">
+        <img src="jay.jpg" alt="Jay">
+        <div class="quote-overlay"></div>
+      </div>
+      <div class="quote-text">
+        <span class="quote-icon">"</span>
+        <p>Би бусдаас илүү байх гэж биш, өчигдрийн өөрөөсөө илүү байх гэж хичээдэг.</p>
+        <div class="quote-author">- Жэй Катлер</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DAVID LAID FEATURE -->
+<section id="david-laid" class="reveal">
+  <div class="david-container">
+    <div class="david-img-box">
+  <!-- w=1600 (өргөн) болон q=90 (чанар) гэж зааж өгсөн -->
+  <img src="david.jpg" alt="David">
+  <div class="david-overlay"></div>
+</div>
+    
+    <div class="david-content">
+      <p class="section-label" style="color: var(--gold);">Modern Era</p>
+      <h2 class="david-title">DAVID <em>LAID</em></h2>
+      <div class="divider"></div>
+      <div class="david-quote">
+        <span class="quote-icon"></span>
+        <p>Би ямар нэгэн тусгай авьяастай биш. Би зүгээр л бууж өгдөггүй.</p>
+      </div>
+      <p class="david-sub">Түүний хувирал сая сая залууст өөрийгөө өөрчлөх итгэл найдварыг өгсөн. Хязгаар гэж үгүй, зөвхөн хичээл зүтгэл бий.</p>
+      <button class="btn-primary" style="margin-top: 2rem;">ТҮҮН ШИГ ЭХЭЛ</button>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">WOOREGYM</div>
+      <p class="footer-desc">Улаанбаатар хотын хамгийн дэвшилтэт биеийн тамирын заал. Таны хязгааргүй хүч манай дэмжлэгтэй гарна.</p>
+    </div>
+    <div>
+      <div class="footer-heading">Холбоос</div>
+      <ul class="footer-links">
+        <li><a href="#">Бидний тухай</a></li>
+        <li><a href="#">Дасгалжуулагч</a></li>
+        <li><a href="#">Хуваарь</a></li>
+        <li><a href="#">Тариф</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-heading">Дасгал</div>
+      <ul class="footer-links">
+        <li><a href="#">Хүч чадал</a></li>
+        <li><a href="#">Cardio</a></li>
+        <li><a href="#">Crossfit</a></li>
+        <li><a href="#">Yoga</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-heading">Холбогдох</div>
+      <ul class="footer-links">
+        <li><a href="#">Чингэлтэй дүүрэг, УБ</a></li>
+        <li><a href="#">+976 99334715</a></li>
+        <li><a href="#">info@wooregym</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2025 Woore Gym. Бүх эрх хуулиар хамгаалагдсан.</span>
+    <div class="footer-logo" style="font-size:1.2rem;letter-spacing:4px">FORGE<span style="color:var(--white)">GYM</span></div>
+  </div>
+</footer>
+
+<script>
+
+
+  // Modal-ыг удирдах
+const regModal = document.getElementById('regModal');
+const closeModal = document.querySelector('.close-modal');
+
+// Вэбсайт дээрх бүх элсэхтэй холбоотой товчнуудыг хайж олох
+// (Класс нь өөр өөр байгаа тул бүгдийг нь хамруулна)
+const allButtons = document.querySelectorAll('.nav-cta, .btn-primary, .btn-plan');
+
+allButtons.forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    // Хэрэв товчлуур нь "Дэлгэрэнгүй" биш бол modal-ыг нээнэ
+    if(btn.innerText.includes("ЭЛСЭХ") || btn.innerText.includes("ЭХЭЛ") || btn.innerText.includes("СОНГОХ")) {
+      regModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  });
+});
+
+closeModal.addEventListener('click', () => {
+  regModal.classList.remove('active');
+  document.body.style.overflow = 'auto';
+});
+
+window.addEventListener('click', (e) => {
+  if (e.target === regModal) {
+    regModal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+});
+
+document.getElementById('regForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  alert('Амжилттай! Бид тантай удахгүй холбогдох болно.');
+  regModal.classList.remove('active');
+  document.body.style.overflow = 'auto';
+});
+// Cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e=>{
+  mx=e.clientX; my=e.clientY;
+  cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+});
+(function animRing(){
+  rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+})();
+document.querySelectorAll('button,a,.trainer-card,.pricing-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ ring.style.width='60px'; ring.style.height='60px'; cursor.style.transform='translate(-50%,-50%) scale(0.5)'; });
+  el.addEventListener('mouseleave',()=>{ ring.style.width='36px'; ring.style.height='36px'; cursor.style.transform='translate(-50%,-50%) scale(1)'; });
+});
+
+// Navbar scroll
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY>80);
+});
+
+// Reveal on scroll
+const reveals = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+},{threshold:.15});
+reveals.forEach(r=>obs.observe(r));
+
+// Animated counters
+const stats = document.querySelectorAll('[data-target]');
+const statsObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    const el=e.target, target=+el.dataset.target;
+    const span=el.querySelector('span');
+    let current=0, step=target/60;
+    const timer=setInterval(()=>{
+      current=Math.min(current+step, target);
+      span.textContent=Math.round(current).toLocaleString();
+      if(current>=target) clearInterval(timer);
+    },16);
+    statsObs.unobserve(el);
+  });
+},{threshold:.5});
+stats.forEach(s=>statsObs.observe(s));
+
+// BMI unit toggle
+let unit='metric';
+function setUnit(u,btn){
+  unit=u;
+  document.querySelectorAll('.bmi-toggle-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(u==='metric'){
+    document.getElementById('weight-label').textContent='Жин (кг)';
+    document.getElementById('height-label').textContent='Өндөр (см)';
+    document.getElementById('weight').placeholder='75';
+    document.getElementById('height').placeholder='175';
+  } else {
+    document.getElementById('weight-label').textContent='Жин (фунт)';
+    document.getElementById('height-label').textContent='Өндөр (инч)';
+    document.getElementById('weight').placeholder='165';
+    document.getElementById('height').placeholder='69';
+  }
+}
+
+function calcBMI(){
+  let w=parseFloat(document.getElementById('weight').value);
+  let h=parseFloat(document.getElementById('height').value);
+  if(!w||!h) return;
+  let bmi;
+  if(unit==='metric'){
+    bmi=w/((h/100)**2);
+  } else {
+    bmi=(703*w)/(h**2);
+  }
+  bmi=Math.round(bmi*10)/10;
+  document.getElementById('bmiValue').textContent=bmi;
+  const result=document.getElementById('bmiResult');
+  result.classList.add('show');
+  let cat='',col='';
+  if(bmi<18.5){cat='Турал';col='#3b82f6';}
+  else if(bmi<25){cat='Хэвийн жин';col='#22c55e';}
+  else if(bmi<30){cat='Илүүдэл жин';col='#f59e0b';}
+  else{cat='Таргалалт';col='#ef4444';}
+  const catEl=document.getElementById('bmiCategory');
+  catEl.textContent=cat; catEl.style.color=col;
+  document.getElementById('bmiValue').style.color=col;
+  // Marker position: 10=underweight, 18.5=normal start, 25=overweight, 30=obese, 40=max
+  const pct=Math.min(Math.max((bmi-10)/30,0),1)*100;
+  document.getElementById('bmiMarker').style.left=pct+'%';
+}
+
+// Before/After Slider
+const container=document.getElementById('sliderContainer');
+const afterImg=document.getElementById('afterImg');
+const line=document.getElementById('sliderLine');
+const handle=document.getElementById('sliderHandle');
+let dragging=false;
+function setSlider(x){
+  const rect=container.getBoundingClientRect();
+  let pct=Math.max(0,Math.min(1,(x-rect.left)/rect.width))*100;
+  afterImg.style.clipPath=`inset(0 ${100-pct}% 0 0)`;
+  line.style.left=pct+'%';
+  handle.style.left=pct+'%';
+}
+handle.addEventListener('mousedown',e=>{dragging=true;e.preventDefault();});
+container.addEventListener('mousedown',e=>{dragging=true;setSlider(e.clientX);});
+window.addEventListener('mousemove',e=>{if(dragging)setSlider(e.clientX);});
+window.addEventListener('mouseup',()=>dragging=false);
+handle.addEventListener('touchstart',e=>{dragging=true;},{passive:true});
+container.addEventListener('touchstart',e=>{dragging=true;setSlider(e.touches[0].clientX);},{passive:true});
+window.addEventListener('touchmove',e=>{if(dragging)setSlider(e.touches[0].clientX);},{passive:true});
+window.addEventListener('touchend',()=>dragging=false);
+setSlider(container.getBoundingClientRect().left+container.getBoundingClientRect().width/2);
+
+
+function calcCalories() {
+    const gender = document.getElementById('gender').value;
+    const age = parseFloat(document.getElementById('age').value);
+    const weight = parseFloat(document.getElementById('cal-weight').value);
+    const height = parseFloat(document.getElementById('cal-height').value);
+    const activity = parseFloat(document.getElementById('activity').value);
+
+    if (!age || !weight || !height) {
+        alert("Бүх талбарыг бөглөнө үү!");
+        return;
+    }
+
+    let bmr;
+    if (gender === 'male') {
+        // Mifflin-St Jeor Эрэгтэй: 10*weight + 6.25*height - 5*age + 5
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+    } else {
+        // Mifflin-St Jeor Эмэгтэй: 10*weight + 6.25*height - 5*age - 161
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+    }
+
+    const tdee = Math.round(bmr * activity);
+    
+    document.getElementById('calValue').textContent = tdee + " ккал";
+    document.getElementById('calResult').classList.add('show');
+    
+    // Зорилтот зөвлөмж
+    const loss = tdee - 500;
+    const gain = tdee + 500;
+    document.getElementById('goalInfo').innerHTML = 
+        `Жин хасах бол: <strong>${loss} ккал</strong><br>` +
+        `Жин нэмэх бол: <strong>${gain} ккал</strong>`;
+        
+}
+// ====================== 7 ХОНОГИЙН ДАСГАЛ ======================
+const weeklySchedule = [
+  { day: "ДАВАА", target: "ЦЭЭЖ + ТРИЦЕПС", focus: "Push Day", exercises: [
+    { name: "Хэвтээ шахалт (Bench Press)", sets: "4x8-10", img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600" },
+    { name: "Налуу гантель шахалт", sets: "4x10-12", img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600" },
+    { name: "Гантель Flyes", sets: "3x12", img: "https://images.unsplash.com/photo-1591195853828-11db35a3b8d9?w=600" },
+    { name: "Tricep Dips", sets: "4x10", img: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600" }
+  ]},
+  // (Бусад өдрүүдийг хүсвэл хэлээрэй, одоогоор 7 өдрийг бүгдийг нь оруулсан байх ёстой)
+];
+
+function createSchedule() {
+  const container = document.getElementById('scheduleGrid');
+  container.innerHTML = '';
+
+  weeklySchedule.forEach((day, index) => {
+    const card = document.createElement('div');
+    card.className = `schedule-card ${index === 3 ? 'highlighted' : ''}`;
+    card.innerHTML = `
+      <div class="day">${day.day}</div>
+      <div class="target">${day.target}</div>
+      <small style="color:var(--gold); font-size:0.75rem;">${day.focus}</small>
+      <ul class="exercises" style="margin-top:1.2rem;">
+        ${day.exercises.slice(0,3).map(ex => `<li>${ex.name} <span style="margin-left:auto; opacity:0.6;">${ex.sets}</span></li>`).join('')}
+      </ul>
+      <button class="btn-plan" style="margin-top:1.5rem; font-size:0.75rem; padding:0.7rem;">Дэлгэрэнгүй үзэх →</button>
+    `;
+    card.querySelector('button').addEventListener('click', () => showDayDetail(day));
+    container.appendChild(card);
+  });
+}
+
+function showDayDetail(day) {
+  const modalHTML = `...` ; // (өмнө өгсөн modal код)
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeDayModal() {
+  const modal = document.getElementById('dayModal');
+  if(modal) modal.remove();
+}
+
+document.addEventListener('DOMContentLoaded', createSchedule);
+// BMI Тооцоолох
+function calcBMI() {
+    const weight = document.getElementById('weight').value;
+    const height = document.getElementById('height').value / 100;
+    if (weight > 0 && height > 0) {
+        const bmi = (weight / (height * height)).toFixed(1);
+        document.getElementById('bmiValue').innerText = bmi;
+        document.getElementById('bmiResult').classList.add('show');
+        
+        let cat = "";
+        let color = "";
+        if (bmi < 18.5) { cat = "Тураалтай"; color = "#3b82f6"; }
+        else if (bmi < 25) { cat = "Хэвийн жин"; color = "#22c55e"; }
+        else if (bmi < 30) { cat = "Илүүдэл жин"; color = "#f59e0b"; }
+        else { cat = "Таргалалт"; color = "#ef4444"; }
+        
+        document.getElementById('bmiCategory').innerText = cat;
+        document.getElementById('bmiCategory').style.color = color;
+        // Маркер хөдөлгөх (процентээр тооцов)
+        let percent = (bmi - 15) / (40 - 15) * 100;
+        percent = Math.min(Math.max(percent, 0), 100);
+        document.getElementById('bmiMarker').style.left = percent + "%";
+    }
+}
+
+// Калори Тооцоолох (Mifflin-St Jeor)
+function calcCalories() {
+    const gender = document.getElementById('gender').value;
+    const age = parseFloat(document.getElementById('age').value);
+    const weight = parseFloat(document.getElementById('cal-weight').value);
+    const height = parseFloat(document.getElementById('cal-height').value);
+    const activity = parseFloat(document.getElementById('activity').value);
+
+    if (!age || !weight || !height) {
+        alert("Мэдээллээ бүрэн оруулна уу!");
+        return;
+    }
+
+    let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+    bmr = (gender === 'male') ? bmr + 5 : bmr - 161;
+    
+    const tdee = Math.round(bmr * activity);
+    document.getElementById('calValue').textContent = tdee + " ккал";
+    document.getElementById('calResult').classList.add('show');
+    document.getElementById('goalInfo').innerHTML = 
+        `Жин хасах: <strong>${tdee - 500} ккал</strong> | Жин нэмэх: <strong>${tdee + 500} ккал</strong>`;
+}
+
+// Reveal Animation (Scroll хийхэд гарч ирэх)
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('in');
+    });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
